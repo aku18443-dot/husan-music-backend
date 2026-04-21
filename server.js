@@ -8,25 +8,15 @@ app.get("/", (req, res) => {
 });
 
 app.get("/stream/:id", (req, res) => {
-  const videoId = req.params.id;
-
-  const url = `https://www.youtube.com/watch?v=${videoId}`;
-
-  exec(`yt-dlp -f bestaudio -g ${url}`, (err, stdout, stderr) => {
-    if (err || !stdout) {
-      console.error(stderr);
-      return res.status(500).json({ error: "yt-dlp failed" });
-    }
-
-    res.json({
-      streamUrl: stdout.trim()
-    });
+  const id = req.params.id;
+  exec(`yt-dlp -f bestaudio -g https://youtube.com/watch?v=${id}`, (err, stdout) => {
+    if (err || !stdout) return res.status(500).json({ error: "yt-dlp failed" });
+    res.json({ streamUrl: stdout.trim() });
   });
 });
 
+// 👇 IMPORTANT
 const PORT = process.env.PORT || 3000;
-
-// 🔥 IMPORTANT FIX
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log("Server running on " + PORT);
 });

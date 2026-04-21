@@ -1,8 +1,15 @@
-
 import express from "express";
-import { exec } from "child_process";
+import { execSync, exec } from "child_process";
 
 const app = express();
+
+// 🔥 STARTUP PE INSTALL (SAFE)
+try {
+  execSync("pip3 install yt-dlp --break-system-packages", { stdio: "inherit" });
+  console.log("yt-dlp installed");
+} catch (e) {
+  console.log("yt-dlp install skipped");
+}
 
 app.get("/", (req, res) => {
   res.send("Husan Music Backend Running 🎧");
@@ -11,11 +18,8 @@ app.get("/", (req, res) => {
 app.get("/stream/:id", (req, res) => {
   const videoId = req.params.id;
 
-  const url = `https://www.youtube.com/watch?v=${videoId}`;
-
-  exec(`yt-dlp -f bestaudio -g ${url}`, (err, stdout, stderr) => {
+  exec(`yt-dlp -f bestaudio -g https://youtube.com/watch?v=${videoId}`, (err, stdout) => {
     if (err || !stdout) {
-      console.error("yt-dlp error:", stderr);
       return res.status(500).json({ error: "yt-dlp failed" });
     }
 
@@ -27,7 +31,6 @@ app.get("/stream/:id", (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 
-// 🔥 CRITICAL FIX
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log("Server running on " + PORT);
 });

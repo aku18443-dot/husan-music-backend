@@ -3,11 +3,29 @@ import { exec } from "child_process";
 
 const app = express();
 
+app.get("/", (req, res) => {
+  res.send("Husan Music Backend Running 🎧");
+});
+
 app.get("/stream/:id", (req, res) => {
-  exec(`yt-dlp -f bestaudio -g https://youtube.com/watch?v=${req.params.id}`, (e, out) => {
-    if (e) return res.send("error");
-    res.json({ url: out.trim() });
+  const videoId = req.params.id;
+
+  const url = `https://www.youtube.com/watch?v=${videoId}`;
+
+  exec(`yt-dlp -f bestaudio -g ${url}`, (err, stdout, stderr) => {
+    if (err || !stdout) {
+      console.error(stderr);
+      return res.status(500).json({ error: "yt-dlp failed" });
+    }
+
+    res.json({
+      streamUrl: stdout.trim()
+    });
   });
 });
 
-app.listen(3000);
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
